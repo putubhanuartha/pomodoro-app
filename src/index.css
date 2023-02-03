@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-primary;
+    }
+}
+
+#App nav ul li button {
+    @apply text-white block text-lg pb-1  transition-text delay-75 text-sm ;
+}
+
+#App nav ul li {
+    @apply rounded-full px-2.5 py-1 transition-bg delay-75;
+}
+
+#App nav ul li.active {
+    @apply bg-lightGreen shadow-[0_0px_0px_3px_rgba(255,255,255,0.4)];
+}
+
+#App nav ul li.active button {
+    @apply text-black ;
+}
