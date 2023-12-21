@@ -20,6 +20,7 @@ const activeStateConfigObj = {
 };
 function App() {
 	const audioRef = useRef(null);
+	const musicRef = useRef(null);
 	const [countDownState, setCountDownstate] = useState(false);
 	const [activeState, setActiveState] = useState(activeStateConfigObj);
 	const [second, setSecond] = useState();
@@ -27,6 +28,7 @@ function App() {
 	const [activeColor, setActiveColor] = useState();
 	const [timeFormat, setTimeFormat] = useState("00 : 00");
 	const [indexNav, setIndexNav] = useState(0);
+
 	const timeFormatConverter = () => {
 		let minute = Math.floor(second / 60);
 		minute.toString().length < 2
@@ -42,13 +44,20 @@ function App() {
 		setActiveFont(fontObj[activeState.fontActive].font);
 		setActiveColor(colorObj[activeState.colorActive].colorFormat);
 	}, [activeState]);
+
 	useEffect(() => {
 		if (second <= 0) {
 			setCountDownstate(false);
-			audioRef.current.play();
+			musicRef.current.pause();
+			setTimeout(() => {
+				audioRef.current.play();
+			}, 700);
 		}
 		timeFormatConverter();
 		let timer;
+		if (countDownState && indexNav === 0) {
+			musicRef.current.play();
+		}
 		if (countDownState) {
 			timer = setInterval(() => {
 				setSecond((second) => second - 1);
@@ -57,9 +66,13 @@ function App() {
 				clearInterval(timer);
 			};
 		}
+		
+		
 	}, [countDownState, second]);
+
 	useEffect(() => {
 		if (countDownState == false) {
+			musicRef.current.pause();
 			if (indexNav == 0) {
 				setIndexNav(1);
 			} else {
@@ -67,9 +80,11 @@ function App() {
 			}
 		}
 	}, [countDownState]);
+
 	useEffect(() => {
 		setSecondTimeReset(indexNav);
 	}, [indexNav, activeState]);
+
 	function setSecondTimeReset(indexNav) {
 		setCountDownstate(false);
 		switch (indexNav) {
@@ -84,6 +99,12 @@ function App() {
 				break;
 		}
 	}
+
+	function changeVolume(e) {
+		const vol = e.currentTarget.value;
+		musicRef.current.volume = vol / 100;
+	}
+
 	return (
 		<div
 			id="App"
@@ -127,13 +148,32 @@ function App() {
 					onClick={() => {
 						setCountDownstate(!countDownState);
 					}}
-					className={`w-[350px] h-[350px]  rounded-full block shrink-0 text-blue-900 ${activeColor}`}
+					className={`w-[350px] h-[350px] transition-all active:shadow-[0px_0px_10px_12px_rgba(255,255,255,0.5)] duration-300 hover:shadow-[0px_0px_10px_7px_rgba(255,255,255,0.3)]  rounded-full block shrink-0 text-blue-900 ${activeColor}`}
 				>
 					<p className="text-7xl">{timeFormat}</p>
 					<p className="text-4xl tracking-[10px] mt-3">
 						{countDownState ? "PAUSE" : "START"}
 					</p>
 				</button>
+				<div className="max-w-xs w-full">
+					<input
+						onChange={changeVolume}
+						type="range"
+						min={0}
+						defaultValue={100}
+						max={100}
+						className="range"
+					/>
+				</div>
+				<audio
+					ref={musicRef}
+					loop
+				>
+					<source
+						src="soul.mp3"
+						type="audio/mp3"
+					/>
+				</audio>
 				<ModalComponent
 					activeState={activeState}
 					setActiveState={setActiveState}
